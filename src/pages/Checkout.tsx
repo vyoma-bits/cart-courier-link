@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,6 +22,7 @@ export const Checkout = () => {
   });
   
   const [paymentMethod, setPaymentMethod] = useState('card');
+  const [consentChecked, setConsentChecked] = useState(false);
 
   const total = state.total + 9.99 + (state.total * 0.08);
   
@@ -31,6 +33,15 @@ export const Checkout = () => {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!consentChecked) {
+      toast({
+        title: "Consent Required",
+        description: "Please acknowledge the health product disclaimer to proceed.",
         variant: "destructive"
       });
       return;
@@ -174,8 +185,31 @@ export const Checkout = () => {
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                  <Button type="submit" variant="gradient" className="w-full" size="lg">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox 
+                        id="health-consent" 
+                        checked={consentChecked}
+                        onCheckedChange={(checked) => setConsentChecked(checked === true)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="health-consent" className="text-sm leading-relaxed cursor-pointer">
+                        I acknowledge that these products contain ayurvedic health formulations. 
+                        I understand that these natural remedies are intended for wellness support 
+                        and I choose to use them at my own discretion. Please consult with a 
+                        healthcare professional if you have any medical concerns.
+                      </Label>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    variant="gradient" 
+                    className="w-full" 
+                    size="lg"
+                    disabled={!consentChecked}
+                  >
                     Proceed to Payment & Delivery
                   </Button>
                 </form>
